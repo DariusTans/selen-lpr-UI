@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Ban, Crown, ImagePlus, Save, X } from "lucide-react";
+import { ArrowLeft, Ban, Crown, ImagePlus, Save, X, type LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,8 +17,61 @@ import {
 import { cn } from "@/lib/utils";
 import { vehicleStore } from "@/data/store";
 import { PROVINCES } from "@/data/provinces";
-import { platePlaceholder } from "@/data/mock";
+import { platePlaceholder, carPlaceholder } from "@/data/mock";
 import type { VehicleType } from "@/data/types";
+
+function ImageUploader({
+  label,
+  icon: Icon,
+  hint,
+  value,
+  onChange,
+}: {
+  label: string;
+  icon: LucideIcon;
+  hint: string;
+  value: string;
+  onChange: (dataUrl: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+      {value ? (
+        <div className="relative overflow-hidden rounded-lg border border-border">
+          <img src={value} alt={label} className="aspect-video w-full object-cover" />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+        >
+          <Icon className="size-8" />
+          <span className="text-sm font-medium">{hint}</span>
+          <span className="text-xs">PNG / JPG</span>
+        </button>
+      )}
+    </div>
+  );
+}
 
 const empty = {
   plate: "",
@@ -32,22 +85,14 @@ const empty = {
 
 export function VehicleFormPage() {
   const navigate = useNavigate();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<VehicleType>("blacklist");
   const [form, setForm] = useState(empty);
-  const [image, setImage] = useState<string>("");
+  const [carImage, setCarImage] = useState<string>("");
+  const [plateImage, setPlateImage] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (key: keyof typeof empty) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
-
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setImage(reader.result as string);
-    reader.readAsDataURL(file);
-  }
 
   function validate() {
     const next: Record<string, string> = {};
@@ -60,12 +105,14 @@ export function VehicleFormPage() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+    const plate = form.plate.trim();
     vehicleStore.add({
       ...form,
       type,
       ownerName: form.ownerName.trim() || "-",
       reason: form.reason.trim() || "-",
-      imageUrl: image || platePlaceholder(form.plate.trim(), type),
+      carImageUrl: carImage || carPlaceholder([form.brand, form.model].filter(Boolean).join(" ") || plate, type),
+      plateImageUrl: plateImage || platePlaceholder(plate, type),
     });
     navigate("/vehicles");
   }
@@ -206,41 +253,25 @@ export function VehicleFormPage() {
             </CardContent>
           </Card>
 
-          {/* Right: image upload */}
+          {/* Right: image uploads */}
           <Card>
-            <CardContent className="space-y-3 pt-6">
-              <Label>รูปรถ / ป้ายทะเบียน</Label>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onFile}
+            <CardContent className="space-y-4 pt-6">
+              <ImageUploader
+                label="รูปรถ"
+                icon={ImagePlus}
+                hint="คลิกเพื่ออัปโหลดรูปรถ"
+                value={carImage}
+                onChange={setCarImage}
               />
-              {image ? (
-                <div className="relative overflow-hidden rounded-lg border border-border">
-                  <img src={image} alt="vehicle" className="aspect-video w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setImage("")}
-                    className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                >
-                  <ImagePlus className="size-8" />
-                  <span className="text-sm font-medium">คลิกเพื่ออัปโหลดรูป</span>
-                  <span className="text-xs">PNG / JPG</span>
-                </button>
-              )}
+              <ImageUploader
+                label="รูปป้ายทะเบียน"
+                icon={ImagePlus}
+                hint="คลิกเพื่ออัปโหลดรูปป้าย"
+                value={plateImage}
+                onChange={setPlateImage}
+              />
               <p className="text-xs text-muted-foreground">
-                หากไม่อัปโหลด ระบบจะสร้างรูปป้ายทะเบียนตัวอย่างให้อัตโนมัติ
+                หากไม่อัปโหลด ระบบจะสร้างรูปตัวอย่างให้อัตโนมัติ
               </p>
             </CardContent>
           </Card>

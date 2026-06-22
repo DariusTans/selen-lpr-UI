@@ -1,7 +1,7 @@
 import type { Vehicle } from "./types";
 import { MOCK_VEHICLES } from "./mock";
 
-const KEY = "selen.vehicles.v1";
+const KEY = "selen.vehicles.v3";
 
 function read(): Vehicle[] {
   try {

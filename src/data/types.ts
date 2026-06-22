@@ -24,7 +24,8 @@ export interface Vehicle {
   color: string;
   ownerName: string;
   reason: string;
-  imageUrl: string; // data URL or remote
+  carImageUrl: string; // รูปรถ — data URL or remote
+  plateImageUrl: string; // รูปป้ายทะเบียน — data URL or remote
   createdAt: string; // ISO string
 }
 

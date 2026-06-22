@@ -19,6 +19,30 @@ export function platePlaceholder(plate: string, type: "blacklist" | "vip" | "unk
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+// A simple inline SVG "car photo" placeholder generator (offline-friendly).
+export function carPlaceholder(label: string, type: "blacklist" | "vip" | "unknown" = "unknown"): string {
+  const accent = type === "blacklist" ? "#ef4444" : type === "vip" ? "#f59e0b" : "#38bdf8";
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200">
+  <rect width="320" height="200" fill="#0f172a"/>
+  <rect width="320" height="200" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <path d="M60 130 L80 95 Q86 84 100 84 L210 84 Q226 84 236 96 L262 128 L268 150 L52 150 Z" fill="#334155" stroke="${accent}" stroke-width="2"/>
+  <rect x="96" y="92" width="44" height="30" rx="3" fill="#0f172a"/>
+  <rect x="148" y="92" width="60" height="30" rx="3" fill="#0f172a"/>
+  <circle cx="98" cy="150" r="18" fill="#0f172a" stroke="${accent}" stroke-width="3"/>
+  <circle cx="222" cy="150" r="18" fill="#0f172a" stroke="${accent}" stroke-width="3"/>
+  <rect x="0" y="170" width="320" height="30" fill="#0f172a"/>
+  <text x="16" y="190" font-family="sans-serif" font-size="13" fill="#94a3b8">${label}</text>
+</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 export const MOCK_AI_EVENTS: AiEvent[] = [
   {
     id: 1,
@@ -88,7 +112,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     color: "ขาว",
     ownerName: "-",
     reason: "เคยบุกรุกพื้นที่",
-    imageUrl: platePlaceholder("1กก 1234", "blacklist"),
+    carImageUrl: "/blacklist_vehicle_1.jpg",
+    plateImageUrl: "/blacklist_lpr_1.jpg",
     createdAt: "2026-05-30T10:00:00",
   },
   {
@@ -101,7 +126,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     color: "ดำ",
     ownerName: "คุณสมชาย (ผู้บริหาร)",
     reason: "รถผู้บริหาร เปิดไม้กั้นอัตโนมัติ",
-    imageUrl: platePlaceholder("ขข 5678", "vip"),
+    carImageUrl: "/vip_vehicle_1.jpg",
+    plateImageUrl: "/vip_lpr_1.jpg",
     createdAt: "2026-06-02T08:30:00",
   },
   {
@@ -114,7 +140,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     color: "เทา",
     ownerName: "-",
     reason: "ต้องสงสัย",
-    imageUrl: platePlaceholder("2มท 9012", "blacklist"),
+    carImageUrl: "/blacklist_vehicle_2.jpg",
+    plateImageUrl: "/blacklist_lpr_2.jpg",
     createdAt: "2026-06-10T14:20:00",
   },
   {
@@ -127,7 +154,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     color: "เงิน",
     ownerName: "คุณวิภา (แขก VIP)",
     reason: "แขกประจำ",
-    imageUrl: platePlaceholder("ฮก 3456", "vip"),
+    carImageUrl: "/vip_vehicle_2.jpg",
+    plateImageUrl: "/vip_lpr_2.jpg",
     createdAt: "2026-06-15T11:45:00",
   },
 ];
@@ -140,7 +168,7 @@ export const MOCK_LPR_EVENTS: LprEvent[] = [
     matchType: "blacklist",
     cam: "Gate Cam 1",
     datetime: "2026-06-21T07:33:40",
-    imageUrl: platePlaceholder("1กก 1234", "blacklist"),
+    imageUrl: "/blacklist_lpr_1.jpg",
   },
   {
     id: 2,
@@ -149,7 +177,7 @@ export const MOCK_LPR_EVENTS: LprEvent[] = [
     matchType: "vip",
     cam: "Gate Cam 1",
     datetime: "2026-06-21T08:10:02",
-    imageUrl: platePlaceholder("ขข 5678", "vip"),
+    imageUrl: "/vip_lpr_1.jpg",
   },
   {
     id: 3,
@@ -167,7 +195,7 @@ export const MOCK_LPR_EVENTS: LprEvent[] = [
     matchType: "blacklist",
     cam: "Gate Cam 1",
     datetime: "2026-06-22T06:48:11",
-    imageUrl: platePlaceholder("2มท 9012", "blacklist"),
+    imageUrl: "/blacklist_lpr_2.jpg",
   },
   {
     id: 5,
@@ -176,6 +204,6 @@ export const MOCK_LPR_EVENTS: LprEvent[] = [
     matchType: "vip",
     cam: "Gate Cam 1",
     datetime: "2026-06-22T07:22:30",
-    imageUrl: platePlaceholder("ฮก 3456", "vip"),
+    imageUrl: "/vip_lpr_2.jpg",
   },
 ];

@@ -122,10 +122,15 @@ export function VehicleListPage() {
           {filtered.map((v) => (
             <Card key={v.id} className="overflow-hidden">
               <div className="relative">
-                <img src={v.imageUrl} alt={v.plate} className="aspect-video w-full object-cover" />
+                <img src={v.carImageUrl} alt={`รถ ${v.plate}`} className="aspect-video w-full object-cover" />
                 <div className="absolute left-2 top-2">
                   <TypeBadge type={v.type} />
                 </div>
+                <img
+                  src={v.plateImageUrl}
+                  alt={`ป้าย ${v.plate}`}
+                  className="absolute bottom-2 right-2 h-12 w-20 rounded border-2 border-white/80 object-cover shadow-md"
+                />
               </div>
               <CardContent className="space-y-3 pt-4">
                 <div className="flex items-center justify-between gap-2">
